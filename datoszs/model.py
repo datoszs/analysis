@@ -1,13 +1,14 @@
 from .config import get_config
 from .remote import get_filename
+from .db import connection
 from bs4 import BeautifulSoup
 from sql import Table
 import os
 import re
 
 
-def load_documents(connection, court):
-    with connection.cursor() as cursor:
+def load_documents(court):
+    with connection().cursor() as cursor:
         documents = Table('document')
         select = documents.select()
         select.where = documents.court_id == court.id
