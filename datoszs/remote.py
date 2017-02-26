@@ -14,5 +14,4 @@ def get_filename(filename):
             if not os.path.exists(dirs):
                 os.makedirs(dirs)
             os.system("scp {}:{} {}".format(ssh_host, filename, local_copy))
-            print("scp {}:{} {}".format(ssh_host, filename, local_copy))
         return local_copy

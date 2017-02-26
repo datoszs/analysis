@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from sql import Table
 import os
 import re
+from .crawler import ConstitutionalCourtCrawler
 
 
 def load_documents(court):
@@ -29,9 +30,25 @@ class Document:
         if not self.info['local_path'].endswith('html'):
             raise Exception('There is not HTML document.')
         if not hasattr(self, '_html_content'):
-            with open(get_filename(os.path.join(get_config('storage.path', required=True), self.info['local_path'])), 'r') as f:
-                self._html_content = f.read()
+            filename = get_filename(os.path.join(get_config('storage.path', required=True), self.info['local_path']))
+            if not os.path.exists(filename):
+                with open(filename, 'w') as f:
+                    self._html_content = ConstitutionalCourtCrawler.start().get_document_html(self)
+                    f.write(self._html_content)
+            else:
+                with open(filename, 'r') as f:
+                    self._html_content = f.read()
         return self._html_content
+
+    @property
+    def registry_sign(self):
+        cases = Table('case')
+        select = cases.select(cases.registry_sign)
+        select.where = cases.id_case == self.info['case_id']
+        query, args = tuple(select)
+        with connection().cursor() as cursor:
+            cursor.execute(query, args)
+            return cursor.fetchone()[0]
 
 
 class ConstitutionalCourtDocument(Document):
