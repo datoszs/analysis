@@ -2,12 +2,13 @@ from datoszs.model import Courts, load_documents
 from datoszs.config import get_config
 import pandas
 import os
+import frogress
 
 
 def execute():
     output_dir = get_config('output.dir', default='output')
     result = []
-    for doc in load_documents(Courts.CONSTITUTINAL):
+    for doc in frogress.bar(load_documents(Courts.CONSTITUTINAL)):
         doc_info = doc.content_info
         identifier = doc_info['Identifikátor evropské judikatury']
         identifier_dir = os.path.join(output_dir, '-'.join(identifier.split(':')[:-1]))
