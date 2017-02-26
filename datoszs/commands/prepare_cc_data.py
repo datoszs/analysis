@@ -14,7 +14,7 @@ def execute():
         identifier_dir = os.path.join(output_dir, '-'.join(identifier.split(':')[:-1]))
         if not os.path.exists(identifier_dir):
             os.makedirs(identifier_dir)
-        filename = os.path.join(identifier_dir, identifier.replace(':', '-').replace('.', '-'))
+        filename = '{}.txt'.format(os.path.join(identifier_dir, identifier.replace(':', '-').replace('.', '-')))
         with open(filename, 'w') as f:
             f.write(doc_info['content'])
             doc_info['txt_file'] = filename.replace(output_dir, '')
