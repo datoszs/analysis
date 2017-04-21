@@ -1,9 +1,9 @@
 #! /usr/bin/env python
-
-import datoszs.commands.prepare_cc_data as prepare_cc_data
-from datoszs.db import global_connection
+import datoszs.commands
+from spiderpig import run_cli
 
 
 if __name__ == "__main__":
-    with global_connection():
-        prepare_cc_data.execute()
+    run_cli(
+        command_packages=[datoszs.commands],
+    )

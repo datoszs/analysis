@@ -1,11 +1,16 @@
-from .config import get_config
-from .remote import get_filename
+from .crawler import ConstitutionalCourtCrawler
 from .db import connection
+from .remote import get_filename
 from bs4 import BeautifulSoup
 from sql import Table
 import os
 import re
-from .crawler import ConstitutionalCourtCrawler
+import spiderpig as sp
+
+
+@sp.configured()
+def storage_path(storage_path=None):
+    return storage_path
 
 
 def load_documents(court):
@@ -22,15 +27,16 @@ def load_documents(court):
 
 class Document:
 
-    def __init__(self, info):
+    def __init__(self, info, storage_path):
         self.info = info
+        self._storage_path = storage_path
 
     @property
     def html_content(self):
         if not self.info['local_path'].endswith('html'):
             raise Exception('There is not HTML document.')
         if not hasattr(self, '_html_content'):
-            filename = get_filename(os.path.join(get_config('storage.path', required=True), self.info['local_path']))
+            filename = get_filename(os.path.join(self._storage_path, self.info['local_path']))
             if not os.path.exists(filename):
                 with open(filename, 'w') as f:
                     self._html_content = ConstitutionalCourtCrawler.start().get_document_html(self)
@@ -82,8 +88,7 @@ class Court:
         self._document_factory = document_factory
 
     def create_document(self, info):
-
-        return self._document_factory(info)
+        return self._document_factory(info, storage_path())
 
 
 class Courts:
