@@ -1,35 +1,87 @@
+from .config import storage_path, host_name
 from .crawler import ConstitutionalCourtCrawler
 from .db import connection
 from .remote import get_filename
 from bs4 import BeautifulSoup
-from sql import Table
+from sql import Table, Column
 import os
 import re
-import spiderpig as sp
 
 
-@sp.configured()
-def storage_path(storage_path=None):
-    return storage_path
-
-
-def load_documents(court):
+def load_documents(court=None):
     with connection().cursor() as cursor:
         documents = Table('document')
         select = documents.select()
-        select.where = documents.court_id == court.id
+        if court is not None:
+            select.where = documents.court_id == court.id
         query, args = tuple(select)
         cursor.execute(query, args)
         cols = [col[0] for col in cursor.description]
         for fetched in cursor:
-            yield court.create_document(dict(zip(cols, fetched)))
+            row = dict(zip(cols, fetched))
+            current_court = court if court is not None else Courts.BY_ID[row['court_id']]
+            row['court_id'] = current_court.name
+            yield current_court.create_document(row)
+
+
+def load_cases(court=None):
+    with connection().cursor() as cursor:
+        cases = Table('case')
+        latest_advocates = Table('vw_latest_tagging_advocate')
+        latest_results = Table('vw_latest_tagging_case_result')
+        select = cases.join(
+            latest_advocates, type_='LEFT',
+            condition=(latest_advocates.case_id == cases.id_case) & (latest_advocates.status == 'processed')
+        ).join(
+            latest_results, type_='LEFT',
+            condition=(latest_results.case_id == cases.id_case) & (latest_results.status == 'processed')
+        ).select(
+            Column(cases, '*'),
+            latest_advocates.advocate_id,
+            latest_results.case_result
+        )
+        if court is not None:
+            select.where = cases.court_id == court.id
+        query, args = tuple(select)
+        cursor.execute(query, args)
+        cols = [col[0] for col in cursor.description]
+        for fetched in cursor:
+            row = dict(zip(cols, fetched))
+            current_court = court if court is not None else Courts.BY_ID[row['court_id']]
+            row['court_id'] = current_court.name
+            yield Case(row)
+
+
+def load_advocates():
+    with connection().cursor() as cursor:
+        advocates = Table('advocate')
+        info = Table('advocate_info')
+        select = advocates.join(
+            info,
+            condition=(advocates.id_advocate == info.advocate_id) & (info.valid_to == None)
+        ).select(
+            info.degree_before,
+            info.degree_after,
+            info.name,
+            info.surname,
+            advocates.id_advocate.as_('id'),
+            advocates.identification_number.as_('registration_number'),
+            advocates.registration_number.as_('identification_number')
+        )
+        query, args = tuple(select)
+        cursor.execute(query, args)
+        cols = [col[0] for col in cursor.description]
+        for fetched in cursor:
+            row = dict(zip(cols, fetched))
+            yield Advocate(row)
 
 
 class Document:
 
-    def __init__(self, info, storage_path):
+    def __init__(self, info, storage_path, host_name):
         self.info = info
         self._storage_path = storage_path
+        self._host_name = host_name
 
     @property
     def html_content(self):
@@ -55,6 +107,48 @@ class Document:
         with connection().cursor() as cursor:
             cursor.execute(query, args)
             return cursor.fetchone()[0]
+
+    @property
+    def public_info(self):
+        public = dict(self.info)
+        del public['job_run_id']
+        public['id'] = public['id_document']
+        del public['id_document']
+        del public['inserted']
+        del public['local_path']
+        del public['record_id']
+        public['url_original'] = public['web_path']
+        del public['web_path']
+        public['url_proxy'] = 'https://{}/public/document/view/{}'.format(self._host_name, public['id'])
+        return public
+
+
+class Advocate:
+
+    def __init__(self, info):
+        self.info = info
+
+    @property
+    def public_info(self):
+        return dict(self.info)
+
+
+class Case:
+
+    def __init__(self, info):
+        self.info = info
+
+    @property
+    def public_info(self):
+        public = dict(self.info)
+        public['id'] = public['id_case']
+        del public['id_case']
+        del public['job_run_id']
+        del public['official_data']
+        del public['decision_date']
+        del public['proposition_date']
+        del public['inserted']
+        return public
 
 
 class ConstitutionalCourtDocument(Document):
@@ -83,18 +177,21 @@ class ConstitutionalCourtDocument(Document):
 
 class Court:
 
-    def __init__(self, id, document_factory):
+    def __init__(self, name, id, document_factory, document_db_table):
         self.id = id
+        self.name = name
         self._document_factory = document_factory
+        self.document_db_table = document_db_table
 
     def create_document(self, info):
-        return self._document_factory(info, storage_path())
+        return self._document_factory(info, storage_path(), host_name())
 
 
 class Courts:
 
-    SUPREME_ADMINISTRATIVE = Court(1, Document)
-    SUPREME = Court(2, Document)
-    CONSTITUTINAL = Court(3, ConstitutionalCourtDocument)
+    SUPREME_ADMINISTRATIVE = Court('supreme_administrative', 1, Document, 'document_supreme_administrative_court')
+    SUPREME = Court('supreme', 2, Document, 'document_supreme_court')
+    CONSTITUTIONAL = Court('constitutional', 3, ConstitutionalCourtDocument, 'document_law_court')
 
-    ALL = [SUPREME_ADMINISTRATIVE, SUPREME, CONSTITUTINAL]
+    ALL = [SUPREME_ADMINISTRATIVE, SUPREME, CONSTITUTIONAL]
+    BY_ID = {c.id: c for c in ALL}

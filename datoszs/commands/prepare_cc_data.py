@@ -2,6 +2,7 @@ from datoszs.db import global_connection
 from datoszs.model import Courts, load_documents
 import frogress
 import os
+import output
 import pandas as pd
 import spiderpig as sp
 
@@ -19,15 +20,10 @@ def save_document(doc_info, output_dir=None):
     del doc_info['content']
 
 
-@sp.configured()
-def save_csv(data, output_dir=None):
-    data.to_csv(os.path.join(output_dir, 'data.csv'), index=False, sep=';')
-
-
 def execute():
     with global_connection():
         result = []
-        for doc in frogress.bar(load_documents(Courts.CONSTITUTINAL)):
+        for doc in frogress.bar(load_documents(Courts.CONSTITUTIONAL)):
             doc_info = doc.content_info
             result.append(doc_info)
-    save_csv(pd.DataFrame(result))
+    output.save_csv(pd.DataFrame(result), 'data')
