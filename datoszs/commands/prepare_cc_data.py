@@ -2,7 +2,7 @@ from datoszs.db import global_connection
 from datoszs.model import Courts, load_documents
 import frogress
 import os
-import output
+import datoszs.output as output
 import pandas as pd
 import spiderpig as sp
 
