@@ -6,6 +6,7 @@ frogress==0.9.1
 numpy==1.12.0
 pandas==0.19.2
 psycopg2==2.6.2
+pypandoc==1.4
 python-dateutil==2.6.0
 python-sql==0.8
 pytz==2016.10
