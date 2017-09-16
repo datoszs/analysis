@@ -26,7 +26,7 @@ def load_documents(court=None):
 
 def load_cases(court=None):
     with connection().cursor() as cursor:
-        cases = Table('case')
+        cases = Table('vw_case_for_advocates')
         latest_advocates = Table('vw_latest_tagging_advocate')
         latest_results = Table('vw_latest_tagging_case_result')
         select = cases.join(
