@@ -9,16 +9,21 @@ import pandas as pd
 import shutil
 import pypandoc
 from pypandoc.pandoc_download import download_pandoc
+import locale
 
 
-def load_readme_content(cases):
+def load_readme_content(cases, advocates, documents):
+    locale.setlocale(locale.LC_ALL, '')
     with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'public_data_README.md'), 'r') as f:
         content = f.read()
     return content.format(
         HOST=host_name(),
-        DECISION_PERCENTAGE=int(100 * (1 - len(cases) / sum(cases['case_result'].isnull()))) if cases else 0,
-        ADVOCATE_PERCENTAGE=int(100 * (1 - len(cases) / sum(cases['advocate_id'].isnull()))) if cases else 0,
-        LAST_UPDATE=datetime.date.today()
+        DECISION_PERCENTAGE=int(100 * (cases['case_result'].notnull().sum() / len(cases))) if len(cases) > 0 else 0,
+        ADVOCATE_PERCENTAGE=int(100 * (cases['advocate_id'].notnull().sum() / len(cases))) if len(cases) > 0 else 0,
+        LAST_UPDATE=datetime.date.today(),
+        CASE_NUM='{:n}'.format(len(cases)),
+        ADVOCATE_NUM='{:n}'.format(len(advocates)),
+        DOCUMENT_NUM='{:n}'.format(len(documents))
     )
 
 
@@ -29,7 +34,7 @@ def prepare(cases, advocates, documents, dest):
     output.save_csv(cases, 'cestiadvokati_cases', output_dir=dest)
     output.save_csv(advocates, 'cestiadvokati_advocates', output_dir=dest)
     output.save_csv(documents, 'cestiadvokati_documents', output_dir=dest)
-    readme = load_readme_content(cases)
+    readme = load_readme_content(cases, advocates, documents)
     with open(os.path.join(dest, 'README.md'), 'w') as f:
         f.write(readme)
     download_pandoc()
