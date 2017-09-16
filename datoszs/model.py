@@ -11,7 +11,11 @@ import re
 def load_documents(court=None):
     with connection().cursor() as cursor:
         documents = Table('document')
-        select = documents.select()
+        cases = Table('vw_case_for_advocates')
+        select = documents.join(
+            cases, type_='INNER',
+            condition=(cases.id_case==documents.case_id)
+        ).select(Column(documents, '*'))
         if court is not None:
             select.where = documents.court_id == court.id
         query, args = tuple(select)
@@ -100,7 +104,7 @@ class Document:
 
     @property
     def registry_sign(self):
-        cases = Table('case')
+        cases = Table('vw_case_for_advocates')
         select = cases.select(cases.registry_sign)
         select.where = cases.id_case == self.info['case_id']
         query, args = tuple(select)
