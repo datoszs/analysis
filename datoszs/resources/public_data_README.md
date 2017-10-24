@@ -1,6 +1,6 @@
 # Veřejná data z projektu cestiadvokati.cz
 
-[Tento dataset](http://data.{HOST}/cestiadvokati.zip) obsahuje data o konečných rozhodnutích
+Tento dataset obsahuje data o konečných rozhodnutích
 Nejvyššího, Nejvyššího správního a Ústavního soudu, jejichž neautentická znění
 jsou bezplatně dostupná na webech [nsoud.cz](http://nsoud.cz),
 [nssoud.cz](http://nssoud.cz) a [usoud.cz](http://usoud.cz), odkud je
