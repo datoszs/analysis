@@ -1,18 +1,20 @@
 from datoszs.config import host_name
 from datoszs.db import global_connection
 from datoszs.model import load_cases, load_documents, load_advocates
+from pypandoc.pandoc_download import download_pandoc
 import datetime
 import datoszs.output as output
 import frogress
+import json
+import locale
 import os
 import pandas as pd
-import shutil
 import pypandoc
-from pypandoc.pandoc_download import download_pandoc
-import locale
+import tempfile
+import zipfile
 
 
-def load_readme_content(cases, advocates, documents):
+def load_readme_content(cases, advocates, documents, now):
     locale.setlocale(locale.LC_ALL, '')
     with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'public_data_README.md'), 'r') as f:
         content = f.read()
@@ -20,31 +22,41 @@ def load_readme_content(cases, advocates, documents):
         HOST=host_name(),
         DECISION_PERCENTAGE=int(100 * (cases['case_result'].notnull().sum() / len(cases))) if len(cases) > 0 else 0,
         ADVOCATE_PERCENTAGE=int(100 * (cases['advocate_id'].notnull().sum() / len(cases))) if len(cases) > 0 else 0,
-        LAST_UPDATE=datetime.date.today(),
+        LAST_UPDATE=now.strftime('%Y-%m-%d'),
         CASE_NUM='{:n}'.format(len(cases)),
         ADVOCATE_NUM='{:n}'.format(len(advocates)),
         DOCUMENT_NUM='{:n}'.format(len(documents))
     )
 
 
-def prepare(cases, advocates, documents, dest):
-    if os.path.exists(dest):
-        shutil.rmtree(dest)
-    os.makedirs(dest)
-    output.save_csv(cases, 'cestiadvokati_cases', output_dir=dest)
-    output.save_csv(advocates, 'cestiadvokati_advocates', output_dir=dest)
-    output.save_csv(documents, 'cestiadvokati_documents', output_dir=dest)
-    readme = load_readme_content(cases, advocates, documents)
-    with open(os.path.join(dest, 'README.md'), 'w') as f:
+def prepare(cases, advocates, documents, dest, now):
+    tempdir = tempfile.mkdtemp()
+    os.makedirs(dest, exist_ok=True)
+    output.save_csv(cases, 'cestiadvokati_cases', output_dir=tempdir)
+    output.save_csv(advocates, 'cestiadvokati_advocates', output_dir=tempdir)
+    output.save_csv(documents, 'cestiadvokati_documents', output_dir=tempdir)
+    readme = load_readme_content(cases, advocates, documents, now)
+    with open(os.path.join(tempdir, 'README.md'), 'w') as f:
         f.write(readme)
     download_pandoc()
     readme_html = pypandoc.convert_file(
-        os.path.join(dest, 'README.md'),
+        os.path.join(tempdir, 'README.md'),
         to='html5',
         extra_args=['-s', '-S', '-H', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'pandoc.css')]
     )
-    with open(os.path.join(dest, 'README.html'), 'w') as f:
+    with open(os.path.join(tempdir, 'README.html'), 'w') as f:
         f.write(readme_html)
+    with open(os.path.join(dest, 'cestiadvokati-{}.meta.json'.format(now.strftime('%Y-%m-%d'))), 'w') as f:
+        json.dump({
+            'advocates': len(advocates),
+            'cases': len(cases),
+            'documents': len(documents),
+            'exported': now.strftime('%Y-%m-%d %H:%M:%S'),
+        }, f, indent=4, sort_keys=True)
+    with zipfile.ZipFile(os.path.join(dest, 'cestiadvokati-{}.zip'.format(now.strftime('%Y-%m-%d'))), 'w', zipfile.ZIP_DEFLATED) as zp:
+        for fn in ['README.md', 'README.html', 'cestiadvokati_advocates.csv', 'cestiadvokati_cases.csv', 'cestiadvokati_documents.csv']:
+            print('adding', fn)
+            zp.write(os.path.join(tempdir, fn), fn)
 
 
 def generator2dataframe(generator):
@@ -60,5 +72,6 @@ def execute(dest):
             generator2dataframe(load_cases),
             generator2dataframe(load_advocates),
             generator2dataframe(load_documents),
-            dest
+            dest,
+            datetime.datetime.now()
         )
