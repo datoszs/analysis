@@ -44,19 +44,26 @@ def prepare(cases, advocates, documents, dest, now):
         to='html5',
         extra_args=['-s', '-S', '-H', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'pandoc.css')]
     )
+    datafile_name = 'cestiadvokati-{}.zip'.format(now.strftime('%Y-%m-%d'))
+    metafile_name = 'cestiadvokati-{}.meta.json'.format(now.strftime('%Y-%m-%d'))
     with open(os.path.join(tempdir, 'README.html'), 'w') as f:
         f.write(readme_html)
-    with open(os.path.join(dest, 'cestiadvokati-{}.meta.json'.format(now.strftime('%Y-%m-%d'))), 'w') as f:
+    with open(os.path.join(dest, metafile_name), 'w') as f:
         json.dump({
             'advocates': len(advocates),
             'cases': len(cases),
             'documents': len(documents),
             'exported': now.strftime('%Y-%m-%d %H:%M:%S'),
         }, f, indent=4, sort_keys=True)
-    with zipfile.ZipFile(os.path.join(dest, 'cestiadvokati-{}.zip'.format(now.strftime('%Y-%m-%d'))), 'w', zipfile.ZIP_DEFLATED) as zp:
+    with zipfile.ZipFile(os.path.join(dest, datafile_name), 'w', zipfile.ZIP_DEFLATED) as zp:
         for fn in ['README.md', 'README.html', 'cestiadvokati_advocates.csv', 'cestiadvokati_cases.csv', 'cestiadvokati_documents.csv']:
             print('adding', fn)
             zp.write(os.path.join(tempdir, fn), fn)
+    with open(os.path.join(dest, 'latest.json'), 'w') as f:
+        json.dump({
+            'data': datafile_name,
+            'meta': metafile_name,
+        }, f, indent=4, sort_keys=True)
 
 
 def generator2dataframe(generator):
