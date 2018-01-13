@@ -38,7 +38,7 @@ def prepare(cases, advocates, documents, dest, now):
     readme = load_readme_content(cases, advocates, documents, now)
     with open(os.path.join(tempdir, 'README.md'), 'w') as f:
         f.write(readme)
-    download_pandoc()
+    download_pandoc(version='1.19.1')
     readme_html = pypandoc.convert_file(
         os.path.join(tempdir, 'README.md'),
         to='html5',
