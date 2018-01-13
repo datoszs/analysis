@@ -152,6 +152,9 @@ class Case:
         del public['decision_date']
         del public['proposition_date']
         del public['inserted']
+        # FIXME: handle invalid tagging from supreme administrative court
+        if public['court_id'] == Courts.SUPREME_ADMINISTRATIVE.id:
+            public['advocate_id'] = None
         return public
 
 
