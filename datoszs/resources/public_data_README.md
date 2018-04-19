@@ -1,4 +1,4 @@
-# Veřejná data z projektu cestiadvokati.cz
+# Veřejná data z projektu oadvokatech.ospravedlnosti.cz
 
 Tento dataset obsahuje data o konečných rozhodnutích
 Nejvyššího, Nejvyššího správního a Ústavního soudu, jejichž neautentická znění
