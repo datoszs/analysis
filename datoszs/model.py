@@ -114,15 +114,16 @@ class Document:
 
     @property
     def public_info(self):
-        public = dict(self.info)
-        del public['job_run_id']
-        public['id'] = public['id_document']
-        del public['id_document']
-        del public['inserted']
-        del public['local_path']
-        del public['record_id']
-        public['url_original'] = public['web_path']
-        del public['web_path']
+        public = {
+            key: getattr(self.info, key)
+            for key in [
+                'case_id',
+                'court_id',
+                'decision_date',
+            ]
+        }
+        public['id'] = self.info.id_document
+        public['url_original'] = self.info.web_path
         public['url_proxy'] = 'https://{}/public/document/view/{}'.format(self._host_name, public['id'])
         return public
 
@@ -134,7 +135,18 @@ class Advocate:
 
     @property
     def public_info(self):
-        return dict(self.info)
+        return {
+            key: geattr(self.info, key)
+            for key in [
+                'degree_before',
+                'degree_after',
+                'id',
+                'identification_number',
+                'name',
+                'registration_number',
+                'surname',
+            ]
+        }
 
 
 class Case:
@@ -144,14 +156,17 @@ class Case:
 
     @property
     def public_info(self):
-        public = dict(self.info)
-        public['id'] = public['id_case']
-        del public['id_case']
-        del public['job_run_id']
-        del public['official_data']
-        del public['decision_date']
-        del public['proposition_date']
-        del public['inserted']
+        public = {
+            key: getattr(self.info, key)
+            for key in [
+                'advocate_id',
+                'case_result',
+                'court_id',
+                'regisrtry_sign',
+                'year',
+            ]
+        }
+        public['id'] = self.info.id_case
         if public['advocate_id'] is None:
             public['advocate_id'] = -1
         return public
