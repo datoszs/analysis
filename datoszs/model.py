@@ -115,15 +115,15 @@ class Document:
     @property
     def public_info(self):
         public = {
-            key: getattr(self.info, key)
+            key: self.info[key]
             for key in [
                 'case_id',
                 'court_id',
                 'decision_date',
             ]
         }
-        public['id'] = self.info.id_document
-        public['url_original'] = self.info.web_path
+        public['id'] = self.info['id_document']
+        public['url_original'] = self.info['web_path']
         public['url_proxy'] = 'https://{}/public/document/view/{}'.format(self._host_name, public['id'])
         return public
 
@@ -136,7 +136,7 @@ class Advocate:
     @property
     def public_info(self):
         return {
-            key: geattr(self.info, key)
+            key: self.info[key]
             for key in [
                 'degree_before',
                 'degree_after',
@@ -157,16 +157,16 @@ class Case:
     @property
     def public_info(self):
         public = {
-            key: getattr(self.info, key)
+            key: self.info[key]
             for key in [
                 'advocate_id',
                 'case_result',
                 'court_id',
-                'regisrtry_sign',
+                'registry_sign',
                 'year',
             ]
         }
-        public['id'] = self.info.id_case
+        public['id'] = self.info['id_case']
         if public['advocate_id'] is None:
             public['advocate_id'] = -1
         return public
