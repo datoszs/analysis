@@ -46,6 +46,11 @@ Dataset obsahuje 3 CSV soubory (jako oddělovač je ovšem použit středník):
 | case_result   | Výsledné rozhodnutí               |
 | advocate_id   | Identifikátor advokáta (interní)  |
 
+**Poznámky**:
+
+- Pokud není k danému případu přiřazen advokát, je `advocate_id` nastaveno na
+  -1.
+
 ### Identifikátor soudu
 
 | Identifikátor          | Soud             |
