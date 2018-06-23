@@ -31,6 +31,7 @@ def load_documents(court=None):
 def load_cases(court=None):
     with connection().cursor() as cursor:
         cases = Table('vw_case_for_advocates')
+        annulment = Table('vw_computed_case_annulment')
         latest_advocates = Table('vw_latest_tagging_advocate')
         latest_results = Table('vw_latest_tagging_case_result')
         select = cases.join(
@@ -39,10 +40,15 @@ def load_cases(court=None):
         ).join(
             latest_results, type_='LEFT',
             condition=(latest_results.case_id == cases.id_case) & (latest_results.status == 'processed')
+        ).join(
+            annulment, type_='LEFT',
+            condition=(annulment.annuled_case == cases.id_case)
         ).select(
             Column(cases, '*'),
             latest_advocates.advocate_id,
-            latest_results.case_result
+            latest_results.case_result,
+            annulment.annuled_case,
+            annulment.annuling_case
         )
         if court is not None:
             select.where = cases.court_id == court.id
@@ -164,11 +170,15 @@ class Case:
                 'court_id',
                 'registry_sign',
                 'year',
+                'annuling_case',
             ]
         }
         public['id'] = self.info['id_case']
         if public['advocate_id'] is None:
             public['advocate_id'] = -1
+        if public['annuling_case'] is None:
+            public['annuling_case'] = -1
+        public['annuled'] = int(bool(self.info['annuled_case']))
         return public
 
 

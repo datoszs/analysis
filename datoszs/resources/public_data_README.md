@@ -37,14 +37,16 @@ Dataset obsahuje 3 CSV soubory (jako oddělovač je ovšem použit středník):
 
 ## Případy
 
-| Sloupec       | Popis                             |
-|---------------|---------------------------------- |
-| id            | Interní identifikátor             |
-| court_id      | Identifikátor soudu               |
-| registry_sign | Spisová značka                    |
-| year          | Rok                               |
-| case_result   | Výsledné rozhodnutí               |
-| advocate_id   | Identifikátor advokáta (interní)  |
+| Sloupec       | Popis                                             |
+|---------------|---------------------------------------------------|
+| id            | Interní identifikátor                             |
+| court_id      | Identifikátor soudu                               |
+| registry_sign | Spisová značka                                    |
+| year          | Rok                                               |
+| case_result   | Výsledné rozhodnutí                               |
+| advocate_id   | Identifikátor advokáta (interní)                  |
+| annuled       | Indikátor (0 nebo 1), zda byl daný případ zrušen. |
+| annuling_case | Identifikátor případu, který daný zrušil          |
 
 **Poznámky**:
 
