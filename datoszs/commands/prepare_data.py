@@ -1,6 +1,8 @@
+from collections import defaultdict
 from datoszs.config import host_name
 from datoszs.db import global_connection
 from datoszs.model import load_cases, load_documents, load_advocates
+from glob import glob
 from pypandoc.pandoc_download import download_pandoc
 import datetime
 import datoszs.output as output
@@ -29,12 +31,14 @@ def load_readme_content(cases, advocates, documents, now):
     )
 
 
-def prepare(cases, advocates, documents, dest, now):
+def prepare(cases, advocates, documents, court_specific_documents, dest, now):
     tempdir = tempfile.mkdtemp()
     os.makedirs(dest, exist_ok=True)
     output.save_csv(cases, 'cases', output_dir=tempdir)
     output.save_csv(advocates, 'advocates', output_dir=tempdir)
     output.save_csv(documents, 'documents', output_dir=tempdir)
+    for court_name, court_documents in court_specific_documents.items():
+        output.save_csv(court_documents, 'documents_{}'.format(court_name), output_dir=tempdir)
     readme = load_readme_content(cases, advocates, documents, now)
     with open(os.path.join(tempdir, 'README.md'), 'w') as f:
         f.write(readme)
@@ -56,7 +60,7 @@ def prepare(cases, advocates, documents, dest, now):
             'exported': now.strftime('%Y-%m-%d %H:%M:%S'),
         }, f, indent=4, sort_keys=True)
     with zipfile.ZipFile(os.path.join(dest, datafile_name), 'w', zipfile.ZIP_DEFLATED) as zp:
-        for fn in ['README.md', 'README.html', 'advocates.csv', 'cases.csv', 'documents.csv']:
+        for fn in ['README.md', 'README.html'] + [os.path.basename(fn) for fn in glob(os.path.join(tempdir, '*.csv'))]:
             print('adding', fn)
             zp.write(os.path.join(tempdir, fn), fn)
     with open(os.path.join(dest, 'latest.json'), 'w') as f:
@@ -66,19 +70,24 @@ def prepare(cases, advocates, documents, dest, now):
         }, f, indent=4, sort_keys=True)
 
 
-def generator2dataframe(generator):
+def iterable2dataframe(iterable, field_name='public_info'):
     result = []
-    for row in frogress.bar(generator()):
-        result.append(row.public_info)
+    for row in frogress.bar(iterable):
+        result.append(getattr(row, field_name))
     return pd.DataFrame(result)
 
 
 def execute(dest):
     with global_connection():
+        documents = list(load_documents())
+        documents_by_court = defaultdict(list)
+        for doc in documents:
+            documents_by_court[doc.court.name].append(doc)
         prepare(
-            generator2dataframe(load_cases),
-            generator2dataframe(load_advocates),
-            generator2dataframe(load_documents),
+            iterable2dataframe(load_cases()),
+            iterable2dataframe(load_advocates()),
+            iterable2dataframe(documents),
+            {court_name: iterable2dataframe(docs, field_name='court_specific_public_info') for court_name, docs in documents_by_court.items()},
             dest,
             datetime.datetime.now()
         )

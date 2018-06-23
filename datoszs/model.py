@@ -12,10 +12,20 @@ def load_documents(court=None):
     with connection().cursor() as cursor:
         documents = Table('document')
         cases = Table('vw_case_for_advocates')
-        select = documents.join(
+        pre_select = documents.join(
             cases, type_='INNER',
             condition=(cases.id_case==documents.case_id)
-        ).select(Column(documents, '*'))
+        )
+        specific_court_columns = []
+        for specific_court in Courts.ALL:
+            court_documents = Table(specific_court.document_db_table)
+            for col in specific_court.document_db_table_columns:
+                specific_court_columns.append(Column(court_documents, col).as_('{}__{}'.format(specific_court.name, col)))
+            pre_select = pre_select.join(
+                court_documents, type_='LEFT',
+                condition=(documents.id_document==court_documents.document_id)
+            )
+        select = pre_select.select(Column(documents, '*'), *specific_court_columns)
         if court is not None:
             select.where = documents.court_id == court.id
         query, args = tuple(select)
@@ -119,6 +129,10 @@ class Document:
             return cursor.fetchone()[0]
 
     @property
+    def court(self):
+        return Courts.BY_NAME[self.info['court_id']]
+
+    @property
     def public_info(self):
         public = {
             key: self.info[key]
@@ -126,12 +140,28 @@ class Document:
                 'case_id',
                 'court_id',
                 'decision_date',
+                'local_path',
             ]
         }
         public['id'] = self.info['id_document']
         public['url_original'] = self.info['web_path']
         public['url_proxy'] = 'https://{}/public/document/view/{}'.format(self._host_name, public['id'])
         return public
+
+    @property
+    def court_specific_public_info(self):
+        court_prefix = '{}__'.format(self.info['court_id'])
+        result = {}
+        for key, val in self.info.items():
+            if not key.startswith(court_prefix):
+                continue
+            key = key.replace(court_prefix, '')
+            if key.startswith('id_document'):
+                continue
+            # remove typos
+            key = key.replace('paralel', 'parallel')
+            result[key] = val
+        return result
 
 
 class Advocate:
@@ -217,6 +247,15 @@ class Court:
     def create_document(self, info):
         return self._document_factory(info, storage_path(), host_name())
 
+    @property
+    def document_db_table_columns(self):
+        with connection().cursor() as cursor:
+            documents = Table(self.document_db_table)
+            select = documents.select(Column(documents, '*'), limit=1)
+            query, args = tuple(select)
+            cursor.execute(query, args)
+            return [col[0] for col in cursor.description]
+
 
 class Courts:
 
@@ -226,3 +265,4 @@ class Courts:
 
     ALL = [SUPREME_ADMINISTRATIVE, SUPREME, CONSTITUTIONAL]
     BY_ID = {c.id: c for c in ALL}
+    BY_NAME = {c.name: c for c in ALL}
