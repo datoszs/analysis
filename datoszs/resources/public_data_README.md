@@ -97,45 +97,45 @@ tyto informace spárovat s dokumenty uvedenými výše.
 |-------------------------------|--------------------------------------------------------------|
 | ecli                          | Identifikátor ECLI                                           |
 | form_decision                 | Forma rozhodnutí                                             |
-| decision_result               |                                                              |
-| parallel_reference_laws       |                                                              |
-| parallel_reference_judgements |                                                              |
-| popular_title                 |                                                              |
-| decision_date                 |                                                              |
-| delivery_date                 |                                                              |
-| filing_date                   |                                                              |
-| publication_date              |                                                              |
-| proceedings_type              |                                                              |
-| importance                    |                                                              |
-| proposer                      |                                                              |
-| institution_concerned         |                                                              |
-| justice_rapporteur            |                                                              |
-| contested_act                 |                                                              |
-| concerned_laws                |                                                              |
-| concerned_other               |                                                              |
-| dissenting_opinion            |                                                              |
-| proceedings_subject           |                                                              |
-| subject_index                 |                                                              |
-| ruling_language               |                                                              |
-| note                          |                                                              |
+| decision_result               | Výsledek rozhodnutí                                          |
+| parallel_reference_laws       | Paralelní citace (Sbírka zákonů)                             |
+| parallel_reference_judgements | Paralelní citace (Sbírka nálezů a usnesení)                  |
+| popular_title                 | Populární název                                              |
+| decision_date                 | Datum rozhodnutí                                             |
+| delivery_date                 | Datum vyhlášení                                              |
+| filing_date                   | Datum podání                                                 |
+| publication_date              | Datum zpřístupnění                                           |
+| proceedings_type              | Typ řízení                                                   |
+| importance                    | Význam                                                       |
+| proposer                      | Navrhovatel                                                  |
+| institution_concerned         | Dotčený orgán                                                |
+| justice_rapporteur            | Soudce zpravodaj                                             |
+| contested_act                 | Napadený akt                                                 |
+| concerned_laws                | Dotčené ústavní zákony a mezinárodní smlouvy                 |
+| concerned_other               | Ostatní dotčené předpisy                                     |
+| dissenting_opinion            | Odlišné stanovisko                                           |
+| proceedings_subject           | Předmět řízení                                               |
+| subject_index                 | Věcný rejstřík                                               |
+| ruling_language               | Jazyk rozhodnutí                                             |
+| note                          | Poznámka                                                     |
 
 ### Nejvyšší soud
 
 | Sloupec                       | Popis                                                        |
 |-------------------------------|--------------------------------------------------------------|
-| ecli                          |                                                              |
-| decision_type                 |                                                              |
+| ecli                          | Identifikátor ECLI                                           |
+| decision_type                 | Typ rozhodnutí                                               |
 
 ### Nejvyšší správní soud
 
 | Sloupec                       | Popis                                                        |
 |-------------------------------|--------------------------------------------------------------|
-| order_number                  |                                                              |
-| decision_type                 |                                                              |
-| decision                      |                                                              |
-| sides                         |                                                              |
-| prejudicate                   |                                                              |
-| complaint                     |                                                              |
+| order_number                  | Číslo jednací                                                |
+| decision_type                 | Forma rozhodnutí                                             |
+| decision                      | Rozhodnutí                                                   |
+| sides                         | Účastníci řízení                                             |
+| prejudicate                   | Prejudikatura                                                |
+| complaint                     | Opravný prostředek/stížnost                                  |
 
  ---
 
