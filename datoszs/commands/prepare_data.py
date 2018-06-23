@@ -32,9 +32,9 @@ def load_readme_content(cases, advocates, documents, now):
 def prepare(cases, advocates, documents, dest, now):
     tempdir = tempfile.mkdtemp()
     os.makedirs(dest, exist_ok=True)
-    output.save_csv(cases, 'cestiadvokati_cases', output_dir=tempdir)
-    output.save_csv(advocates, 'cestiadvokati_advocates', output_dir=tempdir)
-    output.save_csv(documents, 'cestiadvokati_documents', output_dir=tempdir)
+    output.save_csv(cases, 'cases', output_dir=tempdir)
+    output.save_csv(advocates, 'advocates', output_dir=tempdir)
+    output.save_csv(documents, 'documents', output_dir=tempdir)
     readme = load_readme_content(cases, advocates, documents, now)
     with open(os.path.join(tempdir, 'README.md'), 'w') as f:
         f.write(readme)
@@ -56,7 +56,7 @@ def prepare(cases, advocates, documents, dest, now):
             'exported': now.strftime('%Y-%m-%d %H:%M:%S'),
         }, f, indent=4, sort_keys=True)
     with zipfile.ZipFile(os.path.join(dest, datafile_name), 'w', zipfile.ZIP_DEFLATED) as zp:
-        for fn in ['README.md', 'README.html', 'cestiadvokati_advocates.csv', 'cestiadvokati_cases.csv', 'cestiadvokati_documents.csv']:
+        for fn in ['README.md', 'README.html', 'advocates.csv', 'cases.csv', 'documents.csv']:
             print('adding', fn)
             zp.write(os.path.join(tempdir, fn), fn)
     with open(os.path.join(dest, 'latest.json'), 'w') as f:
