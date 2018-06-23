@@ -44,8 +44,8 @@ def prepare(cases, advocates, documents, dest, now):
         to='html5',
         extra_args=['-s', '-S', '-H', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'pandoc.css')]
     )
-    datafile_name = 'cestiadvokati-{}.zip'.format(now.strftime('%Y-%m-%d'))
-    metafile_name = 'cestiadvokati-{}.meta.json'.format(now.strftime('%Y-%m-%d'))
+    datafile_name = 'oadvokatech.ospravedlnosti.cz-{}.zip'.format(now.strftime('%Y-%m-%d'))
+    metafile_name = 'oadvokatech.ospravedlnosti.cz-{}.meta.json'.format(now.strftime('%Y-%m-%d'))
     with open(os.path.join(tempdir, 'README.html'), 'w') as f:
         f.write(readme_html)
     with open(os.path.join(dest, metafile_name), 'w') as f:
