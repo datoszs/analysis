@@ -78,6 +78,7 @@ Dataset obsahuje 3 CSV soubory (jako oddělovač je ovšem použit středník):
 | case_id       | Identifikátor případu (interní)                              |
 | court_id      | Identifikátor příslušného soudu                              |
 | decision_date | Datum rozhodnutí                                             |
+| local_path    | Cesta k dokumentu směřující do uložiště dokumentů            |
 | url_original  | Adresa, ze které byl dokument získán                         |
 | url_proxy     | Adresa, kde je dokument k dispozici v rámci našeho projektu  |
 
