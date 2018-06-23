@@ -118,7 +118,6 @@ tyto informace spárovat s dokumenty uvedenými výše.
 | subject_index                 |                                                              |
 | ruling_language               |                                                              |
 | note                          |                                                              |
-| names                         |                                                              |
 
 ### Nejvyšší soud
 

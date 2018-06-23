@@ -158,6 +158,8 @@ class Document:
             key = key.replace(court_prefix, '')
             if key.startswith('id_document'):
                 continue
+            if key == 'names':
+                continue
             # remove typos
             key = key.replace('paralel', 'parallel')
             result[key] = val
