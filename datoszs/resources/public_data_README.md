@@ -99,7 +99,7 @@ tyto informace spárovat s dokumenty uvedenými výše.
 | form_decision                 | Forma rozhodnutí                                             |
 | decision_result               |                                                              |
 | parallel_reference_laws       |                                                              |
-| paralel_reference_judgements  |                                                              |
+| parallel_reference_judgements |                                                              |
 | popular_title                 |                                                              |
 | decision_date                 |                                                              |
 | delivery_date                 |                                                              |
