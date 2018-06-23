@@ -85,6 +85,58 @@ Poznámky:
 
 - u některých dokumentů již jejich původní adresa není platná
 
+## Informace k dokumentům specifické pro jednotlivé soudy
+
+Jednotlivé CSV soubory obsahují sloupec `document_id`, pomocí něhož se dají
+tyto informace spárovat s dokumenty uvedenými výše.
+
+### Ústavní soud
+
+| Sloupec                       | Popis                                                        |
+|-------------------------------|--------------------------------------------------------------|
+| ecli                          | Identifikátor ECLI                                           |
+| form_decision                 | Forma rozhodnutí                                             |
+| decision_result               |                                                              |
+| parallel_reference_laws       |                                                              |
+| paralel_reference_judgements  |                                                              |
+| popular_title                 |                                                              |
+| decision_date                 |                                                              |
+| delivery_date                 |                                                              |
+| filing_date                   |                                                              |
+| publication_date              |                                                              |
+| proceedings_type              |                                                              |
+| importance                    |                                                              |
+| proposer                      |                                                              |
+| institution_concerned         |                                                              |
+| justice_rapporteur            |                                                              |
+| contested_act                 |                                                              |
+| concerned_laws                |                                                              |
+| concerned_other               |                                                              |
+| dissenting_opinion            |                                                              |
+| proceedings_subject           |                                                              |
+| subject_index                 |                                                              |
+| ruling_language               |                                                              |
+| note                          |                                                              |
+| names                         |                                                              |
+
+### Nejvyšší soud
+
+| Sloupec                       | Popis                                                        |
+|-------------------------------|--------------------------------------------------------------|
+| ecli                          |                                                              |
+| decision_type                 |                                                              |
+
+### Nejvyšší správní soud
+
+| Sloupec                       | Popis                                                        |
+|-------------------------------|--------------------------------------------------------------|
+| order_number                  |                                                              |
+| decision_type                 |                                                              |
+| decision                      |                                                              |
+| sides                         |                                                              |
+| prejudicate                   |                                                              |
+| complaint                     |                                                              |
+
  ---
 
  Poslední změna: {LAST_UPDATE}
